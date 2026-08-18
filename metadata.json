@@ -1,0 +1,6 @@
+{
+  "name": "Pearl Dental Care",
+  "description": "Modern Care, Radiant Smiles - Pearl Dental Care Kochi",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
