@@ -146,15 +146,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
               <span className="material-symbols-outlined text-xs opacity-50">arrow_forward</span>
             </a>
           ))}
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenBooking();
-            }}
-            className="bg-[#003c90] text-white font-bold py-3 rounded-full shadow-md text-center text-xs uppercase tracking-wider w-full mt-2"
-          >
-            Book a Appointment
-          </button>
         </div>
       )}
     </header>

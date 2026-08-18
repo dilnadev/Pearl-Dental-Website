@@ -57,7 +57,7 @@ export const AppointmentBanner: React.FC<AppointmentBannerProps> = ({ onOpenBook
               onClick={onOpenBooking}
               className="w-full sm:w-auto bg-white hover:bg-blue-50 text-[#003c90] px-9 py-4.5 rounded-2xl font-bold text-base shadow-xl shadow-black/20 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-3 group"
             >
-              <span>Schedule Your 3D Scan Visit</span>
+              <span>Reserve Your Slot</span>
               <span className="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1">calendar_month</span>
             </button>
 
