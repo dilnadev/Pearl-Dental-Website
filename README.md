@@ -24,49 +24,8 @@ A modern, animated marketing website for **Pearl Dental Care**, a dental clinic 
 - **react-router-dom** — client-side routing (home, privacy policy, terms of service)
 - **Express** — minimal dev/prod server; also exposes an optional `/api/generate-image` endpoint (Gemini image generation) that isn't currently wired into the UI
 
-> All clinic content (services, doctors, testimonials, clinic info) lives in [`src/data.ts`](src/data.ts) as static data — there is no database. Bookings and reviews are simulated client-side and are not persisted or sent anywhere yet.
 
-## Project structure
 
-```
-src/
-  components/       Page sections, modals, and shared UI
-  lib/motion.ts     Shared Framer Motion animation variants
-  assets/           Local images
-  data.ts           Services, doctors, testimonials, clinic info
-  types.ts          Shared TypeScript types
-  App.tsx           Route definitions
-server.ts           Express server (dev middleware + optional image-gen API)
-```
 
-## Getting started
 
-```bash
-npm install
-npm run dev
-```
 
-The dev server runs at **http://localhost:3000**.
-
-### Other scripts
-
-| Command | Description |
-|---|---|
-| `npm run build` | Builds the client (`dist/`) and bundles the server |
-| `npm run start` | Runs the production build |
-| `npm run preview` | Previews the production build locally |
-| `npm run lint` | Type-checks the project (`tsc --noEmit`) |
-
-## Environment variables
-
-Only needed if you want to use the optional Gemini image-generation endpoint (not currently used by the UI):
-
-```
-GEMINI_API_KEY=your_key_here
-```
-
-Copy `.env.example` to `.env` and fill in your key. Get one free at [aistudio.google.com](https://aistudio.google.com).
-
-## Deployment
-
-This project can be deployed as a static site (recommended, since nothing in the current UI depends on the Express server) to platforms like Vercel, Netlify, or Cloudflare Pages — just build with `npm run build` and deploy the `dist/` folder.
