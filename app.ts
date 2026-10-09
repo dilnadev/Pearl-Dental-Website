@@ -1,7 +1,7 @@
 import express from "express";
 import { GoogleGenAI } from "@google/genai";
-import { insertBooking, isSlotTaken, listBookings, findBooking, rescheduleBooking, cancelBooking } from "./db";
-import { sendBookingEmails } from "./email";
+import { insertBooking, isSlotTaken, listBookings, findBooking, rescheduleBooking, cancelBooking } from "./db.js";
+import { sendBookingEmails } from "./email.js";
 
 const app = express();
 
