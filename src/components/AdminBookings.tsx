@@ -15,33 +15,94 @@ interface BookingRecord {
 }
 
 const REFRESH_INTERVAL_MS = 5000;
+const SESSION_KEY = 'pdc_admin_password';
 
 export const AdminBookings: React.FC = () => {
+  const [password, setPassword] = useState<string | null>(() => sessionStorage.getItem(SESSION_KEY));
+  const [passwordInput, setPasswordInput] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authChecking, setAuthChecking] = useState(!!sessionStorage.getItem(SESSION_KEY));
+
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (pwd: string) => {
     try {
-      const res = await fetch('/api/bookings');
+      const res = await fetch('/api/bookings', {
+        headers: { 'x-admin-password': pwd },
+      });
       const data = await res.json();
+
+      if (res.status === 401) {
+        sessionStorage.removeItem(SESSION_KEY);
+        setPassword(null);
+        setAuthError('Incorrect password');
+        return;
+      }
       if (!res.ok) throw new Error(data.error || 'Failed to load bookings');
+
       setBookings(data.bookings || []);
       setError(null);
+      setAuthError(null);
       setLastUpdated(new Date());
     } catch (err: any) {
       setError(err.message || 'Could not reach the server');
     } finally {
       setLoading(false);
+      setAuthChecking(false);
     }
   };
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthChecking(true);
+    sessionStorage.setItem(SESSION_KEY, passwordInput);
+    setPassword(passwordInput);
+  };
+
   useEffect(() => {
-    fetchBookings();
-    const interval = setInterval(fetchBookings, REFRESH_INTERVAL_MS);
+    if (!password) return;
+    fetchBookings(password);
+    const interval = setInterval(() => fetchBookings(password), REFRESH_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, []);
+  }, [password]);
+
+  if (!password || authError) {
+    return (
+      <div className="min-h-screen bg-[#f8f9ff] flex items-center justify-center p-6">
+        <form onSubmit={handleLogin} className="bg-white rounded-2xl shadow border border-[#c3c6d5]/40 p-8 w-full max-w-sm space-y-4">
+          <div className="text-center">
+            <span className="material-symbols-outlined text-3xl text-[#003c90]">lock</span>
+            <h1 className="text-lg font-bold text-[#003c90] mt-2">Admin Access</h1>
+            <p className="text-xs text-[#434653] mt-1">Enter the admin password to view bookings.</p>
+          </div>
+          <input
+            type="password"
+            autoFocus
+            placeholder="Password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            className="w-full bg-white border border-[#c3c6d5] rounded-xl px-4 py-2.5 text-[#0b1c30] focus:ring-2 focus:ring-[#0f52ba] focus:outline-none"
+            required
+          />
+          {authError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl px-4 py-3">
+              {authError}
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={authChecking}
+            className="w-full bg-[#003c90] hover:bg-[#0f52ba] text-white font-semibold py-3 rounded-xl shadow transition-all cursor-pointer disabled:opacity-70"
+          >
+            {authChecking ? 'Checking…' : 'View Bookings'}
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f9ff] p-6 sm:p-10">

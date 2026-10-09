@@ -230,9 +230,17 @@ app.post("/api/bookings/:bookingId/cancel", async (req, res) => {
   }
 });
 
-// Admin: list all bookings (demo-only, no auth)
-app.get("/api/bookings", async (_req, res) => {
+// Admin: list all bookings (password-protected via ADMIN_PASSWORD)
+app.get("/api/bookings", async (req, res) => {
   try {
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+      return res.status(500).json({ error: "ADMIN_PASSWORD is not configured on the server" });
+    }
+    if (req.headers["x-admin-password"] !== adminPassword) {
+      return res.status(401).json({ error: "Incorrect password" });
+    }
+
     return res.json({ success: true, bookings: await listBookings() });
   } catch (err: any) {
     console.error("Error in /api/bookings:", err);
