@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { SERVICES, DOCTORS, CLINIC_INFO } from '../data';
+import { Link } from 'react-router-dom';
+import { SERVICES, DOCTORS, CLINIC_INFO, TIME_SLOTS } from '../data';
 import { AppointmentFormData, BookingConfirmation } from '../types';
 
 interface AppointmentModalProps {
@@ -8,11 +9,6 @@ interface AppointmentModalProps {
   preselectedServiceId?: string;
   preselectedDoctorId?: string;
 }
-
-const TIME_SLOTS = [
-  "09:30 AM", "10:30 AM", "11:30 AM",
-  "02:00 PM", "03:30 PM", "05:00 PM", "06:15 PM"
-];
 
 export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   isOpen,
@@ -33,30 +29,59 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
   const [confirmation, setConfirmation] = useState<BookingConfirmation | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
-    setTimeout(() => {
-      const selectedService = SERVICES.find(s => s.id === formData.serviceId);
-      const selectedDoctor = DOCTORS.find(d => d.id === formData.doctorId);
-      const randomNum = Math.floor(100000 + Math.random() * 900000);
+    const selectedService = SERVICES.find(s => s.id === formData.serviceId);
+    const selectedDoctor = DOCTORS.find(d => d.id === formData.doctorId);
+
+    try {
+      const res = await fetch('/api/book-appointment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceId: formData.serviceId,
+          serviceName: selectedService ? selectedService.title : 'General Consultation',
+          doctorId: formData.doctorId,
+          doctorName: selectedDoctor ? selectedDoctor.name : 'Lead Specialist',
+          date: formData.date,
+          timeSlot: formData.timeSlot,
+          patientName: formData.patientName,
+          patientPhone: formData.patientPhone,
+          patientEmail: formData.patientEmail,
+          notes: formData.notes,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Failed to book appointment. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
 
       const result: BookingConfirmation = {
-        bookingId: `PDC-${randomNum}`,
-        serviceName: selectedService ? selectedService.title : 'General Consultation',
-        doctorName: selectedDoctor ? selectedDoctor.name : 'Lead Specialist',
-        dateTime: `${formData.date} at ${formData.timeSlot}`,
-        patientName: formData.patientName,
-        patientPhone: formData.patientPhone,
+        bookingId: data.booking.bookingId,
+        serviceName: data.booking.serviceName,
+        doctorName: data.booking.doctorName,
+        dateTime: `${data.booking.date} at ${data.booking.timeSlot}`,
+        patientName: data.booking.patientName,
+        patientPhone: data.booking.patientPhone,
       };
 
       setConfirmation(result);
+    } catch (err) {
+      setError('Could not reach the server. Please check your connection and try again.');
+    } finally {
       setIsSubmitting(false);
-    }, 600);
+    }
   };
 
   const handleReset = () => {
@@ -98,7 +123,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
               <div>
                 <h4 className="text-2xl font-bold text-[#003c90] mb-1">Appointment Reserved</h4>
                 <p className="text-sm text-[#434653]">
-                  Confirmation message sent to <span className="font-semibold text-[#0b1c30]">{confirmation.patientPhone}</span>
+                  Our team will contact you at <span className="font-semibold text-[#0b1c30]">{confirmation.patientPhone}</span> to confirm
                 </p>
               </div>
 
@@ -133,6 +158,10 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   <p className="mt-1 font-semibold text-[#006970]">Helpline: {CLINIC_INFO.phone}</p>
                 </div>
               </div>
+
+              <p className="text-xs text-[#434653]">
+                Need to make changes? <Link to="/manage-booking" onClick={onClose} className="text-[#003c90] font-semibold hover:underline">Reschedule or cancel your appointment</Link>
+              </p>
 
               <button
                 onClick={handleReset}
@@ -273,6 +302,13 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                   />
                 </div>
               </div>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl px-4 py-3 flex items-start gap-2">
+                  <span className="material-symbols-outlined text-base shrink-0">error</span>
+                  <span>{error}</span>
+                </div>
+              )}
 
               {/* Submit Button */}
               <div className="pt-3">

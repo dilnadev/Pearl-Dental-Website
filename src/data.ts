@@ -212,6 +212,11 @@ export const INITIAL_TESTIMONIALS: Testimonial[] = [
   }
 ];
 
+export const TIME_SLOTS = [
+  "09:30 AM", "10:30 AM", "11:30 AM",
+  "02:00 PM", "03:30 PM", "05:00 PM", "06:15 PM"
+];
+
 export const CLINIC_INFO = {
   name: "Pearl Dental Care",
   tagline: "Modern Care, Radiant Smiles",
@@ -219,6 +224,6 @@ export const CLINIC_INFO = {
   phone: "+91 9497343412",
   email: "care@pearldentalcare.com",
   hoursWeekdays: "9:30am - 7:00pm",
-  hoursSunday: "Appointment Only",
+  hoursSunday: "Closed",
   emergencyPhone: "+91 9497343412"
 };

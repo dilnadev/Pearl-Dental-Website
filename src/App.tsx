@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import { HomePage } from './components/HomePage';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsOfService } from './components/TermsOfService';
+import { AdminBookings } from './components/AdminBookings';
+import { ManageBooking } from './components/ManageBooking';
 
 export default function App() {
   return (
@@ -10,6 +12,8 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms-of-service" element={<TermsOfService />} />
+      <Route path="/admin" element={<AdminBookings />} />
+      <Route path="/manage-booking" element={<ManageBooking />} />
     </Routes>
   );
 }
